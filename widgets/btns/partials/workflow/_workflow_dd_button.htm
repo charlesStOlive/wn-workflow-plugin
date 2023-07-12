@@ -1,0 +1,29 @@
+    <?php if(count($btnTrans) > 1) : ?>
+    <div class="dropdown dropup">
+        <a href="#"
+           data-toggle="dropdown"
+           class="btn btn-primary oc-icon-floppy-o"><?= e(trans('waka.workflow::lang.base.btn_workflow')) ?>
+        </a>
+        <ul class="dropdown-menu dropup"
+            role="menu"
+            data-dropdown-title="lien rapide">
+
+            <?php foreach ($btnTrans as $key => $trans): ?>
+            <li role="presentation">
+                <a href="javascript:;"
+                   role="menuitem"
+                   tabindex="-1"
+                   data-request="onSave"
+                   data-request-data="<?= $trans['redirect'] ? $trans['redirect'] .',' : null?>change_state:'<?= e($trans['value']) ?>'"
+                   <?php if ($trans['com']) : ?>data-request-confirm=" <?= e(trans($trans['com']))?>" <?php endif ?>
+                   data-load-indicator="<?= e(trans('waka.wutils::lang.global.save_indicator')) ?>"
+                   data-toggle="dropdown">
+                    <?= e($trans['label']) ?>
+                </a>
+            </li>
+            <?php endforeach ?>
+        </ul>
+    </div>
+    <?php else : ?>
+    <?= $this->makePartial('workflow/workflow_buttons', ['btnTrans' => $btnTrans]);?>
+    <?php endif ?>
