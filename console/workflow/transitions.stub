@@ -1,0 +1,9 @@
+{% for transition in trans %}
+- {{transition.lang}}
+{% if transition.rules %}
+  -- Nom du jeux de contrôle : {{transition.rules}}
+{% endif %}
+{% if transition.functions %}
+  -- Liste des fonctions : {% for functions in transition.functions %}{{functions.fnc}}{% if not loop.last %}, {% endif %}{% endfor %} 
+{% endif %}
+{% endfor %}

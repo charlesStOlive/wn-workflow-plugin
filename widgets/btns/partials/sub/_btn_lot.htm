@@ -1,0 +1,15 @@
+<button class="btn btn-secondary oc-icon-file-excel-o"
+        disabled="disabled"
+        data-trigger-action="enable"
+        data-trigger=".control-list input[type=checkbox]"
+        data-trigger-condition="checked"
+        data-request-success="$(this).prop('disabled', 'disabled')"
+        data-stripe-load-indicator
+        data-trigger-action="enable"
+        data-control="popup"
+        data-size="huge"
+        data-handler="onExportLotPopupForm"
+        onclick="$(this).data('request-data', { checked: $('.control-list').listWidget('getChecked'), modelClass:'<?=$modelClass?>' })"
+        data-toggle="dropdown">
+    <?= e(trans('waka.wutils::lang.global.lot'))?>
+</button>

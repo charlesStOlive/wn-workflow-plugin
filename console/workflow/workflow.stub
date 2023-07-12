@@ -1,0 +1,119 @@
+{{name | lower}}:
+    type: state_machine
+    metadata: 
+        name: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.{{configs.name.key}}{% else %}{{configs.name.label}}{% endif %} 
+{% if configs.com %}
+        com: {{author | lower}}.{{plugin | lower}}::{{name | lower}}.{{ configs.com.key }} 
+        cron_auto_time: {{ configs.cron_auto_time.value | default('00h04')}}
+{% endif %}
+{% if rulesSets |length > 0 %}
+        rulesSets:
+{% for key, rulesSet in rulesSets %}
+            {{key}}:
+                fields: {% if not rulesSet.fields %}null{% endif %} 
+{% for field in rulesSet.fields %}
+                    {{field.key}}: {{field.value}}              
+{% endfor %}
+                messages: {{author | lower}}.{{plugin | lower}}::{{name | lower}}_errors
+{% endfor %}
+
+{% endif %}
+{% if scopes | length > 0 %}
+        scopes:
+{% for scope in scopes %}
+            {{scope.key}}:
+                label: {{author | lower}}.{{plugin | lower}}::{{name | lower}}.scopes.{{scope.key}}
+                value: [{{scope.value}}]             
+{% endfor %}{% endif %}
+    marking_store:
+        type: single_state
+        property: {{configs.arguments.value}}
+    supports:
+        - \{{author | studly }}\{{plugin | studly}}\Models\{{ model | studly}}
+    places:
+{% for place in places %}
+        {{place.name}}:
+            metadata:
+                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.places.{{place.name}}{%else%}{{place.lang}}{%endif%} 
+{% if place.com %}
+                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.places.comments.{{place.name}}{%else%}{{place.com}}{%endif%} 
+{% endif %}
+{% if place.permissions %}
+                permissions: [{{place.permissions}}]
+{% endif %}
+{% if place.no_permissions %}
+                no_permissions: [{{place.no_permissions}}]
+{% endif %}
+{% if place.cron_auto %}
+                cron_auto: [{{place.cron_auto}}]
+{% endif %}
+{% if place.form_auto %}
+                form_auto: [{{place.form_auto}}]
+{% endif %}
+{% if place.new_workflow %}
+                new_workflow: true
+{% endif %}
+{% if place.color %}
+                color: {{place.color}}
+{% endif %}
+{% if place.icon %}
+                icon: {{place.icon}}
+{% endif %}
+{% if place.must_trans %}
+                must_trans: true
+{% endif %}
+{% if place.hidden_fields %}
+                hidden_fields: [{{place.hidden_fields | trim}}]
+{% endif %}
+{% if place.ro_fields %}
+                ro_fields: [{{place.ro_fields | trim}}]
+{% endif %}
+{% endfor %}
+    initial_places: {{ configs.initial_places.value }}  # or set to an array if multiple initial places
+    transitions:
+{% for transition in trans %}
+        {{transition.name}}:
+            metadata: 
+                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.{{transition.name}}{%else%}{{transition.lang}}{%endif%} 
+{% if transition.button %}
+                button: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.buttons.{{transition.name}}{%else%}{{transition.button}}{%endif%} 
+{% endif %}
+{% if transition.com %}
+                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.comments.{{transition.name}}{%else%}{{transition.com}}{%endif%} 
+{% endif %}
+{% if transition.goto %}
+                goto: {{ transition.goto }} 
+{% endif %}
+{% if transition.rules %}
+                rulesSet: {{transition.rules}}
+{% endif %}
+{% if transition.hidden %}
+                hidden: true
+{% endif %}
+{% if transition.redirect %}
+                redirect: "{{transition.redirect}}"
+{% endif %}
+{% if transition.color %}
+                color: {{transition.color}}
+{% endif %}
+{% if transition.functions %}
+                fncs:
+{% for keyfnc,functions in transition.functions %}
+                    {{keyfnc}}:
+                        type: {{functions.type}}
+{% if functions.args %}
+                        args:
+{% for key,arg in functions.args %}
+                            {{key}}: {{arg}}
+{% endfor %}{% endif %}
+{% endfor %}{% endif %}
+{% if transition.from %}
+            from: {{transition.from}}
+{% else %}
+            from: 
+{% for subfrom in transition.froms %}
+                - {{ subfrom }}
+{% endfor %}
+{% endif %}
+            to: {{transition.to}}
+{% endfor %}
