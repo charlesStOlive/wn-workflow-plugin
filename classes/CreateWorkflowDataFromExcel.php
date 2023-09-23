@@ -184,14 +184,20 @@ class CreateWorkflowDataFromExcel
                     if ($part == '') continue;
                     //trace_log("part : " . $part);
                     preg_match('/(\w+)\(([^)]*)\)/', $part, $matches);
-                    $name = $matches[1];
+                    $name = $matches[1] ?? false; 
+                    if(!$name) {
+                        throw new \ApplicationException('Votre fonction '.$value.' Est mal configuré, il manque sans doute () ');
+                    }
                     //trace_log('name : ' . $name);
                     $args = $this->getArguments($part);
                     //trace_log('args--');
                     //trace_log($args);
                     //trace_log(" vide ? ".count($args));
                     //trace_log($allFncs[$name]);
-                    $fncData = $allFncs[$name];
+                    $fncData = $allFncs[$name] ?? false;
+                    if(!$fncData) {
+                        throw new \ApplicationException('Votre fonction '.$value.' n est pas déclaré dans l\'onglet work');
+                    }
                     $fncData = ['type' => $type];
                     if (!empty($args)) {
                         //trace_log($allFncs[$name]['args']);

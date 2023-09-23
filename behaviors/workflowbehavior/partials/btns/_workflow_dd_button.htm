@@ -2,7 +2,7 @@
     <div class="dropdown dropup">
         <a href="#"
            data-toggle="dropdown"
-           class="btn btn-primary oc-icon-floppy-o"><?= e(trans('waka.workflow::lang.base.btn_workflow')) ?>
+           class="btn btn-primary wn-icon-exchange"><?= e(trans('waka.workflow::lang.base.btn_workflow')) ?>
         </a>
         <ul class="dropdown-menu dropup"
             role="menu"
@@ -25,5 +25,5 @@
         </ul>
     </div>
     <?php else : ?>
-    <?= $this->makePartial('workflow/workflow_buttons', ['btnTrans' => $btnTrans]);?>
+    <?= $this->workflowMakePartial('btns/workflow_buttons', ['btnTrans' => $btnTrans]);?>
     <?php endif ?>
