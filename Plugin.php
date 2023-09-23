@@ -52,7 +52,7 @@ class Plugin extends PluginBase
 
         $this->registerConsoleCommand('waka.workflow', 'Waka\Workflow\Console\WorkflowCreate');
         $this->registerConsoleCommand('waka.workflowDump', 'Waka\Workflow\Console\WorkflowDump');
-        /**NODS-A Supprimer ??*/$this->registerConsoleCommand('waka:workflowODump', 'Waka\Workflow\Console\WorkflowOnlineDump');
+        /**NODS-A Supprimer ??*/ //$this->registerConsoleCommand('waka:workflowODump', 'Waka\Workflow\Console\WorkflowOnlineDump');
     }
 
     /**

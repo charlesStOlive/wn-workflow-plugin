@@ -53,6 +53,9 @@
 {% if place.new_workflow %}
                 new_workflow: true
 {% endif %}
+{% if place.no_delete %}
+                no_delete: true
+{% endif %}
 {% if place.color %}
                 color: {{place.color}}
 {% endif %}
@@ -92,6 +95,9 @@
 {% endif %}
 {% if transition.redirect %}
                 redirect: "{{transition.redirect}}"
+{% endif %}
+{% if transition.icon %}
+                icon: {{transition.icon}}
 {% endif %}
 {% if transition.color %}
                 color: {{transition.color}}

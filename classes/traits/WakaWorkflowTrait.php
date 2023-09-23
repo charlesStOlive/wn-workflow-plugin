@@ -19,8 +19,6 @@ trait WakaWorkflowTrait
             /*
              * Define relationships
              */
-
-            array_push($model->attributesToDs, 'wfPlaceLabel');
             array_push($model->purgeable, 'change_state');
             array_push($model->purgeable, 'state_close');
 
@@ -31,6 +29,9 @@ trait WakaWorkflowTrait
             ];
 
             $model->bindEvent('model.beforeDelete', function () use ($model) {
+                if($model->wfNoDelete) {
+                    throw new \ValidationException(['any' => 'L\'état du modèle interdit toute suppression']);
+                }
                 $model->state_logs()->delete();
             });
 
@@ -284,6 +285,13 @@ trait WakaWorkflowTrait
         $redirection  = $this->wakaWorkflowGetTransitionMetadata($transition)['redirect'] ?? null;
         return $redirection; // string place name
     }
+
+    public function getWfTransitionLabel($label_transition = null)
+    {
+        $transition = self::getWfTransition($label_transition, $this);
+        $label  = $this->wakaWorkflowGetTransitionMetadata($transition)['label'] ?? null;
+        return $label; // string place name
+    }
     
     public function listAllWorkflowState($wf = null)
     {
@@ -307,7 +315,7 @@ trait WakaWorkflowTrait
         } else {
             $place = $this->state;
         }
-        $label = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['label'] ?? $place; // string place name
+        $label = $this->getWfPlaceMetadata($place)['label'] ?? $place; // string place name
         return Lang::get($label);
     }
     //
@@ -320,9 +328,14 @@ trait WakaWorkflowTrait
         } else {
             $place = $this->state;
         }
-        $placeMetaData = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place);
+        $placeMetaData = $this->getWfPlaceMetadata($place);
         $button = $placeMetaData['button'] ?? $this->placeMetaData['label']; // string place name
         return Lang::get($button);
+    }
+
+
+    public function getWfPlaceMetadata($place) {
+        return $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place);
     }
 
 
@@ -330,30 +343,36 @@ trait WakaWorkflowTrait
 
     public function listWfPlaceFormAuto()
     {
-        $form_auto = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($this->state)['form_auto'] ?? [];
+        $form_auto = $this->getWfPlaceMetadata($this->state)['form_auto'] ?? [];
         return $form_auto;
     }
     public function listWfPlaceCronAuto()
     {
-        $cront_auto = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($this->state)['form_auto'] ?? [];
+        $cront_auto = $this->getWfPlaceMetadata($this->state)['form_auto'] ?? [];
         return $cront_auto;
     }
 
     public function getWfMustTransAttribute($place = null)
     {
         if (!$place) $place =  $this->state;
-        return $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['must_trans'] ?? false; // string place name
+        return $this->getWfPlaceMetadata($place)['must_trans'] ?? false; // string place name
+    }
+
+    public function getWfNoDeleteAttribute($place = null)
+    {
+        if (!$place) $place =  $this->state;
+        return $this->getWfPlaceMetadata($place)['no_delete'] ?? false; // string place name
     }
 
     public function getWfHiddenFields($place = null)
     {
         if (!$place) $place =  $this->state;
-        return $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['hidden_fields'] ?? []; // string place name
+        return $this->getWfPlaceMetadata($place)['hidden_fields'] ?? []; // string place name
     }
     public function getWfROFields($place = null)
     {
         if (!$place) $place =  $this->state;
-        return $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['ro_fields'] ?? []; // string place name
+        return $this->getWfPlaceMetadata($place)['ro_fields'] ?? []; // string place name
     }
 
     public function listWfWorklowstateWithAutomatisation()
@@ -361,7 +380,7 @@ trait WakaWorkflowTrait
         $places = $this->getWakaWorkflow()->getDefinition()->getPlaces();
         $results = [];
         foreach ($places as $place) {
-            $automatisation = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['cron_auto'] ?? false;
+            $automatisation = $this->getWfPlaceMetadata($place)['cron_auto'] ?? false;
             if ($automatisation) {
                 $results[$place] = $automatisation;
             }
@@ -405,8 +424,8 @@ trait WakaWorkflowTrait
     {
         $user = \BackendAuth::getUser();
         $place = $this->state;
-        $permission = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['permissions'] ?? []; // string place name
-        $noPermission = $this->getWakaWorkflow()->getMetadataStore()->getPlaceMetadata($place)['no_permissions'] ?? []; // string place name
+        $permission = $this->getWfPlaceMetadata($place)['permissions'] ?? []; // string place name
+        $noPermission = $this->getWfPlaceMetadata($place)['no_permissions'] ?? []; // string place name
         $autorisation = false;
         if ($permission == [] && $noPermission == []) {
             return true;
@@ -429,5 +448,23 @@ trait WakaWorkflowTrait
         } else {
             return null;
         }
+    }
+
+    public function dsWorkflow($key, $field, $opt) {
+        return $this->getWfPlaceLabelAttribute();
+    }
+    public function dsWorkflowStates($key, $field, $opt) {
+        $rows =  [];
+        foreach($this->state_logs->sortBy('created_at') as $log) {
+            //trace_log($log);
+            // $label = $this->getWfPlaceMetadata($log->state)['label'] ?? $log->state;
+            // $label = \Lang::get($label);
+            $transition = $this->getWfTransitionLabel($log->name) ?? $log->name;
+            $transition = \Lang::get($transition);
+            $text = sprintf('-<b>%s</b><br>%s | %s ', $transition, $log->created_at->format('d/m/y'), $log->user);
+            $rows[] = $text;
+            // 
+        }
+        return $rows;
     }
 }
