@@ -71,10 +71,10 @@ class WorkflowBehavior extends ControllerBehavior
         \Event::listen('waka.workflow.popup_afterSave', function ($data) {
             \Session::put('popup_afterSave', $data);
         });
-        \Event::listen('waka.wutils.btns.replace_action_btn', function ($model) {
+        \Event::listen('waka.wutils.wakacontroller.replace_action_btn', function ($model) {
             return $this->addButtonsToBtnsWidget($model);
         });
-        \Event::listen('controller.btns.action_bar.hide_delete', function ($model) {
+        \Event::listen('controller.wakacontroller.action_bar.hide_delete', function ($model) {
             return $this->deleteButonShouldBeHidded($model);
         });
         $wfPopupAfterSave = \Session::get('popup_afterSave');
