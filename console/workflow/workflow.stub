@@ -1,9 +1,9 @@
 {{name | lower}}:
     type: state_machine
     metadata: 
-        name: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.{{configs.name.key}}{% else %}{{configs.name.label}}{% endif %} 
+        name: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.{{configs.name.key}}{% else %}{{configs.name.label}}{% endif %} 
 {% if configs.com %}
-        com: {{author | lower}}.{{plugin | lower}}::{{name | lower}}.{{ configs.com.key }} 
+        com: {{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.{{ configs.com.key }} 
         cron_auto_time: {{ configs.cron_auto_time.value | default('00h04')}}
 {% endif %}
 {% if rulesSets |length > 0 %}
@@ -14,7 +14,7 @@
 {% for field in rulesSet.fields %}
                     {{field.key}}: {{field.value}}              
 {% endfor %}
-                messages: {{author | lower}}.{{plugin | lower}}::{{name | lower}}_errors
+                # messages: {{author | lower}}.{{plugin | lower}}::{{name | lower}}_errors
 {% endfor %}
 
 {% endif %}
@@ -22,7 +22,7 @@
         scopes:
 {% for scope in scopes %}
             {{scope.key}}:
-                label: {{author | lower}}.{{plugin | lower}}::{{name | lower}}.scopes.{{scope.key}}
+                label: {{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.scopes.{{scope.key}}
                 value: [{{scope.value}}]             
 {% endfor %}{% endif %}
     marking_store:
@@ -34,9 +34,9 @@
 {% for place in places %}
         {{place.name}}:
             metadata:
-                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.places.{{place.name}}{%else%}{{place.lang}}{%endif%} 
+                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.places.{{place.name}}{%else%}{{place.lang}}{%endif%} 
 {% if place.com %}
-                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.places.comments.{{place.name}}{%else%}{{place.com}}{%endif%} 
+                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.places.comments.{{place.name}}{%else%}{{place.com}}{%endif%} 
 {% endif %}
 {% if place.permissions %}
                 permissions: [{{place.permissions}}]
@@ -77,12 +77,12 @@
 {% for transition in trans %}
         {{transition.name}}:
             metadata: 
-                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.{{transition.name}}{%else%}{{transition.lang}}{%endif%} 
+                label: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.trans.{{transition.name}}{%else%}{{transition.lang}}{%endif%} 
 {% if transition.button %}
-                button: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.buttons.{{transition.name}}{%else%}{{transition.button}}{%endif%} 
+                button: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.trans.buttons.{{transition.name}}{%else%}{{transition.button}}{%endif%} 
 {% endif %}
 {% if transition.com %}
-                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::{{name | lower}}.trans.comments.{{transition.name}}{%else%}{{transition.com}}{%endif%} 
+                com: {%if putTrans %}{{author | lower}}.{{plugin | lower}}::lang.workflows.{{name| lower}}.trans.comments.{{transition.name}}{%else%}{{transition.com}}{%endif%} 
 {% endif %}
 {% if transition.goto %}
                 goto: {{ transition.goto }} 

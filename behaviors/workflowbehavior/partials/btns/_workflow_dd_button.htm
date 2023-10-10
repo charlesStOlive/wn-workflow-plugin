@@ -2,7 +2,12 @@
     <div class="dropdown dropup">
         <a href="#"
            data-toggle="dropdown"
-           class="btn btn-primary wn-icon-exchange"><?= e(trans('waka.workflow::lang.base.btn_workflow')) ?>
+           class="btn btn-primary wn-icon-exchange">
+           <?php if($this->controller->action == 'update'): ?>
+            <?= e(trans('waka.workflow::lang.base.btn_workflow_update')) ?>
+            <?php else : ?> 
+            <?= e(trans('waka.workflow::lang.base.btn_workflow_create')) ?>
+            <?php endif ?>
         </a>
         <ul class="dropdown-menu dropup"
             role="menu"

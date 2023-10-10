@@ -1,10 +1,21 @@
 <?php if(!$mustTrans) : ?>
-<button type="button"
-        class="wn-icon-floppy-o btn btn-secondary"
-        data-request="onSave"
-        data-request-data="refresh:1"
-        data-request-confirm="Vous aller enregistrer en restant dans l'état actuel"
-        data-load-indicator="<?= e(trans('waka.wutils::lang.global.save_indicator')) ?>">
-        <?= e(trans('waka.wutils::lang.global.save')) ?>
-</button>
+        <?php if($this->controller->action == 'update') : ?>
+                <button type="submit"
+                        data-request="onSave"
+                        data-request-data="refresh:1"
+                        data-hotkey="ctrl+s, cmd+s"
+                        data-load-indicator="<?= e(trans('waka.wutils::lang.global.save_indicator')) ?>"
+                        class="btn btn-secondary">
+                <?= e(trans('waka.wutils::lang.global.save')) ?>
+                </button>
+                <?php else : ?>
+                <button type="submit"
+                        data-request="onSave"
+                        data-hotkey="ctrl+s, cmd+s"
+                        data-load-indicator="<?= e(trans('waka.wutils::lang.global.save_indicator')) ?>"
+                        class="btn btn-secondary ">
+                <?= e(trans('waka.wutils::lang.global.create')) ?>
+                </button>
+        <?php endif  ?>
+
 <?php endif ?>

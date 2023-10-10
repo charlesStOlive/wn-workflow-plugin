@@ -4,6 +4,7 @@ namespace Waka\Workflow\Console;
 
 use System\Console\BaseScaffoldCommand;
 use Winter\Storm\Support\Collection;
+use Winter\Storm\Parse\PHP\ArrayFile;
 use Twig;
 
 class WorkflowCreate extends BaseScaffoldCommand
@@ -50,7 +51,6 @@ class WorkflowCreate extends BaseScaffoldCommand
 
     protected $stubs = [
         'workflow/workflow.stub' => 'config/{{name}}.yaml',
-        'workflow/temp_lang.stub' => 'lang/fr/{{name}}.php',
         'workflow/listener.stub' => 'listeners/Workflow{{name | studly }}Listener.php',
         'workflow/description.stub' => 'docs/wf_{{name}}.md',
     ];
@@ -200,16 +200,27 @@ class WorkflowCreate extends BaseScaffoldCommand
 
     protected function makeLangFiles()
     {
+        // Generate the path to the localization file to modify
+        $langFilePath = $this->getDestinationPath() . '/lang/fr/lang.php';
+        if (!file_exists($langFilePath)) {
+            // $this->makeDirectory($langFilePath);
+            $comment = 'File generated: ' . str_replace(base_path(), '', $langFilePath);
+        } else {
+            $comment = 'File updated: ' . str_replace(base_path(), '', $langFilePath);
+        }
 
-        $destinationFile = $this->getDestinationPath() . '/lang/fr/' . $this->vars['name'] . '.php';
+        // Store the localization messages to the determined file path
+        // ArrayFile::open($langFilePath)->set($langKeys)->write();
         $places = array_merge($this->vars['tradPlaces'], ['comments' => $this->vars['tradPlacesCom']]);
         $trans = array_merge($this->vars['tradTrans'], ['comments' => $this->vars['tradTransCom']],  ['buttons' => $this->vars['tradButton']]);
         $scopesLang = $this->vars['scopes']->pluck('label', 'key')->toArray();
         $langContent = array_merge($this->vars['trads'], ['places' =>  $places], ['trans' =>  $trans], ['scopes' => $scopesLang] );
         $this->recursive_ksort($langContent);
-        $fileContent = '<?php' . PHP_EOL . PHP_EOL;
-        $fileContent .= 'return ' . \Brick\VarExporter\VarExporter::export($langContent) . ';' . PHP_EOL;
-        file_put_contents($destinationFile, $fileContent);
+        $langToSend = [];
+        $langToSend['workflows'][$this->vars['name']] = $langContent;
+        $langToSend =  [ "workflows.{$this->vars['name']}" => $langContent ];
+        ArrayFile::open($langFilePath)->set($langToSend)->write();
+        $this->comment($comment);
     }
 
     protected function recursive_ksort(&$array)

@@ -74,6 +74,7 @@ class WorkflowBehavior extends ControllerBehavior
         \Event::listen('waka.wutils.wakacontroller.replace_action_btn', function ($model) {
             return $this->addButtonsToBtnsWidget($model);
         });
+        //L'evenenement ci dessous est envoyé par le controller
         \Event::listen('controller.wakacontroller.action_bar.hide_delete', function ($model) {
             return $this->deleteButonShouldBeHidded($model);
         });
