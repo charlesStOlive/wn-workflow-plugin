@@ -208,8 +208,8 @@ trait WakaWorkflowTrait
         return $this->workflow_transitions($workflowName);
     }
 
-    public function wakaWorkflowGetTransitionMetadata($transition) {
-        return $this->getWakaWorkflow()->getMetadataStore()->getTransitionMetadata($transition);
+    public function wakaWorkflowGetTransitionMetadata($transition, $wf=null) {
+        return $this->getWakaWorkflow($wf)->getMetadataStore()->getTransitionMetadata($transition);
     }
 
     private function saveStateLogs($model,$states) {
@@ -267,9 +267,9 @@ trait WakaWorkflowTrait
         return $value;
     }
 
-    public static function getWfTransition($changeState, $model)
+    public static function getWfTransition($changeState, $model, $wf=null)
     {
-        $transitions = $model->getWakaWorkflow()->getDefinition()->getTransitions();
+        $transitions = $model->getWakaWorkflow($wf)->getDefinition()->getTransitions();
         foreach ($transitions as $transition) {
             if ($transition->getName() == $changeState) {
                 return $transition;
@@ -286,10 +286,10 @@ trait WakaWorkflowTrait
         return $redirection; // string place name
     }
 
-    public function getWfTransitionLabel($label_transition = null)
+    public function getWfTransitionLabel($label_transition = null, $wf=null)
     {
-        $transition = self::getWfTransition($label_transition, $this);
-        $label  = $this->wakaWorkflowGetTransitionMetadata($transition)['label'] ?? null;
+        $transition = self::getWfTransition($label_transition, $this, $wf);
+        $label  = $this->wakaWorkflowGetTransitionMetadata($transition, $wf)['label'] ?? null;
         return $label; // string place name
     }
     
@@ -459,7 +459,8 @@ trait WakaWorkflowTrait
             //trace_log($log);
             // $label = $this->getWfPlaceMetadata($log->state)['label'] ?? $log->state;
             // $label = \Lang::get($label);
-            $transition = $this->getWfTransitionLabel($log->name) ?? $log->name;
+            $transition = $this->getWfTransitionLabel($log->name, $log->wf) ?? $log->name;
+            //trace_log($transition);
             $transition = \Lang::get($transition);
             $text = sprintf('-<b>%s</b><br>%s | %s ', $transition, $log->created_at->format('d/m/y'), $log->user);
             $rows[] = $text;

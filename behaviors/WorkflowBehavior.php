@@ -55,6 +55,15 @@ class WorkflowBehavior extends ControllerBehavior
      */
     protected $requiredConfig = ['workflow'];
 
+    /**
+     * array specification des élements à cacher gérer en meme temps que les données du contreoller
+     */
+    private $hiddenElements;
+    /**
+     * array specification des élements à cacher gérer en meme temps que les données du contreoller
+     */
+    private $controllerStateConfig;
+
     //protected $workflowWidget;
 
     public function __construct($controller)
@@ -77,6 +86,15 @@ class WorkflowBehavior extends ControllerBehavior
         //L'evenenement ci dessous est envoyé par le controller
         \Event::listen('controller.wakacontroller.action_bar.hide_delete', function ($model) {
             return $this->deleteButonShouldBeHidded($model);
+        });
+        //L'evenenement ci dessous est envoyé par  wakaController
+        \Event::listen('controller.wakacontroller.get_call_out', function ($model) {
+            return $this->getCalloutFromWorkflow($model);
+        });
+        //L'evenenement ci dessous est envoyé par  productor
+        \Event::listen('controller.productor.update_productor', function ($model) {
+            //trace_log('controller.productor.update_productor received');
+            return $this->updateProductorFromWorkflow($model);
         });
         $wfPopupAfterSave = \Session::get('popup_afterSave');
         if ($wfPopupAfterSave) {
@@ -101,12 +119,19 @@ class WorkflowBehavior extends ControllerBehavior
         }
     }
 
-    public function deleteButonShouldBeHidded($model) {
+    public function deleteButonShouldBeHidded($model)
+    {
         $workflowConfigState = $this->parseWorkflowData($model);
-        if($workflowConfigState['no_delete'] ?? false) {
+        if ($workflowConfigState['no_delete'] ?? false) {
             return 'hide';
         } else {
-            return;
+
+            $this->initWorkflowConfigFromState($model);
+            if (in_array('delete', $this->hiddenElements)) {
+                 return 'hide';
+            } else {
+                return;
+            }
         }
     }
 
@@ -117,7 +142,8 @@ class WorkflowBehavior extends ControllerBehavior
         if (!$hasWorkflow) {
             return;
         }
-        $workflowConfigState = $this->getWorkflowConfigFromState($model);
+        $this->initWorkflowConfigFromState($model);
+        $workflowConfigState = $this->controllerStateConfig;;
 
         if (!$model->userHasWfPermission()) {
             return $this->makePartial('btns/no_wf_role');
@@ -134,11 +160,13 @@ class WorkflowBehavior extends ControllerBehavior
         //Recuperation de toutes les transitions autorisés.
         $transitions = $modelWorkflowData['transitions'];
         //trace_log($transitions);
-        $hide_all_trans = $workflowConfigState['hide_all_trans'] ?? false;
+        
         //Si hide all trans on vide le tableau des transitions.
-        if ($hide_all_trans) {
+        if (in_array('all_trans', $this->hiddenElements)) {
             $transitions = [];
         }
+        
+
         //On va determiner si il y a des formAuto dans la config ou le workflow du model si il y en a on les enregistrent. 
         $wfTrysFromFormAuto = [];
         $wfTrysFromFormAuto = $workflowConfigState['form_auto'] ?? [];
@@ -190,6 +218,13 @@ class WorkflowBehavior extends ControllerBehavior
         }
 
 
+        if (in_array('save', $this->hiddenElements)) {
+            $this->vars['btnSaveHided'] = true;
+        } else {
+            $this->vars['btnSaveHided'] = false;
+        }
+
+
         $this->vars['modelClass'] = $this->config->modelClass;
         $this->vars['user'] = $this->user = \BackendAuth::getUser();
 
@@ -203,6 +238,19 @@ class WorkflowBehavior extends ControllerBehavior
         $this->vars['wfBtnsAfter'] = $wfBtnsAfter;
 
         return $this->makePartial('workflow');
+    }
+
+
+    private function getCalloutFromWorkflow($model)
+    {
+        $this->initWorkflowConfigFromState($model);
+        return $this->controllerStateConfig['hint'] ?? null;
+    }
+
+    private function updateProductorFromWorkflow($model)
+    {
+        $this->initWorkflowConfigFromState($model);
+        return $this->controllerStateConfig;
     }
 
     /**
@@ -221,17 +269,28 @@ class WorkflowBehavior extends ControllerBehavior
         return $contents;
     }
 
-    public function getWorkflowConfigFromState($model)
+    public function initWorkflowConfigFromState($model)
     {
+        if($this->controllerStateConfig && $this->hiddenElements) {
+            return;
+        }
         //trace_log($this->config->workflow);
+        $statesToReturn = null;
         $state = $model->state;
         $stateConfig = $this->config->workflow[$state] ?? null;
         if ($stateConfig) {
-            return $stateConfig;
-        } else {
-            // \Log::error('pas de config pour le state ' . $state);
-            return [];
+            $statesToReturn =  $stateConfig;
+        } else if($otherConfig = $this->config->workflow['other_states'] ?? null) {
+            $statesToReturn =  $otherConfig;
+        }else {
+            $statesToReturn = [];
         }
+        $hides = $statesToReturn['hides'] ?? '';
+        $hides = explode(',', $hides);
+        $hides = array_map('trim', $hides);
+
+        $this->hiddenElements = $hides;
+        $this->controllerStateConfig = $statesToReturn;
     }
 
     public function getWorkFlowTransitions($withHidden = false)
@@ -307,7 +366,7 @@ class WorkflowBehavior extends ControllerBehavior
                 $roField = $form->getField($field);
                 if ($roField) {
                     $roField->readOnly = true;
-                    if($roField->type == 'widget') {
+                    if ($roField->type == 'widget') {
                         $roField->disabled = true;
                     }
                 }

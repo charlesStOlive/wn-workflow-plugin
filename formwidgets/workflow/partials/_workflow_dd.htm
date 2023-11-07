@@ -1,0 +1,38 @@
+<?php
+    $fieldOptions = $field->options();
+    $useSearch = $field->getConfig('showSearch', true);
+    $emptyOption = $field->getConfig('emptyOption', $field->placeholder);
+?>
+<div class="">
+    <div data-control="">
+        <div class="scoreboard-item title-value">
+            <h4><?= e(trans('waka.workflow::lang.workflow.state')) ?> : <b><?=$value?></b></h4>
+            <?php if($com) : ?><p class="description"><?= $com ?></p><?php endif ?>
+        </div>
+
+        <div class="">
+            <!-- Dropdown -->
+            <div class="m-t"><?php if ($this->previewMode || $field->readOnly): ?>
+                <a class="btn btn-default oc-icon-lock" href="#" disabled
+                   role="button"><?=e(trans('waka.workflow::lang.workflow.state_change_forbidden'))?></a>
+                <?php else: ?>
+                <select id="<?= $field->getId() ?>"
+                        name="<?= $field->getName() ?>"
+                        class="form-control custom-select <?= $useSearch ? '' : 'select-no-search' ?>"
+                        <?= $field->getAttributes() ?>
+                        <?= $field->placeholder ? 'data-placeholder="'.e(trans($field->placeholder)).'"' : '' ?>>
+                    <?php if ($emptyOption): ?>
+                    <option value=""><?= e(trans($emptyOption)) ?></option>
+                    <?php endif ?>
+                    <?php foreach ($fieldOptions as $key => $option): ?>
+                    <option <?= $field->isSelected($key) ? 'selected="selected"' : '' ?>
+                            <?php if (isset($option['icon'])): ?>data-<?=strpos($option['icon'],'.')?'image':'icon'?>="<?= $option['icon'] ?>"
+                            <?php endif ?>
+                            value="<?= e($key) ?>"><?= e(trans($option['label'])) ?></option>
+                    <?php endforeach ?>
+                </select>
+                <?php endif ?>
+            </div>
+        </div>
+    </div>
+</div>

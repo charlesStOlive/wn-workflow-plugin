@@ -89,6 +89,13 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerFormWidgets(): array
+    {
+        return [
+            'Waka\Workflow\FormWidgets\Workflow' => 'workflow',
+        ];
+    }
+
     /**
      * Registers any backend permissions used by this plugin.
      */

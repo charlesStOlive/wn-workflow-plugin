@@ -1,4 +1,4 @@
-<?php if(!$mustTrans) : ?>
+<?php if(!$mustTrans && !$btnSaveHided) : ?>
         <?php if($this->controller->action == 'update') : ?>
                 <button type="submit"
                         data-request="onSave"
