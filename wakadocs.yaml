@@ -3,6 +3,6 @@ files:
         title: Module Productor
         category_slug: "modules"
         comment: "Principe des workflow"
-        permission: waka.docser.modules
+        permissions: waka.docser.modules
         relativePath: waka/workflow/docs
         sort_order: 1000

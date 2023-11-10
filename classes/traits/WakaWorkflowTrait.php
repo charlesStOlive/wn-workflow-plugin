@@ -456,14 +456,15 @@ trait WakaWorkflowTrait
     public function dsWorkflowStates($key, $field, $opt) {
         $rows =  [];
         foreach($this->state_logs->sortBy('created_at') as $log) {
-            //trace_log($log);
-            // $label = $this->getWfPlaceMetadata($log->state)['label'] ?? $log->state;
-            // $label = \Lang::get($label);
-            $transition = $this->getWfTransitionLabel($log->name, $log->wf) ?? $log->name;
-            //trace_log($transition);
-            $transition = \Lang::get($transition);
-            $text = sprintf('-<b>%s</b><br>%s | %s ', $transition, $log->created_at->format('d/m/y'), $log->user);
-            $rows[] = $text;
+            try {
+                $transition = $this->getWfTransitionLabel($log->name, $log->wf) ?? $log->name;
+                $transition = \Lang::get($transition);
+                $text = sprintf('-<b>%s</b><br>%s | %s ', $transition, $log->created_at->format('d/m/y'), $log->user);
+                $rows[] = $text;
+            } catch (\Exception $ex) {
+                $rows[] = 'Erreur cette version du workflow n existe plus';
+            }
+            
             // 
         }
         return $rows;
