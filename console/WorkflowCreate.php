@@ -259,7 +259,7 @@ class WorkflowCreate extends BaseScaffoldCommand
         //trace_log($fncs);
         $diffs = array_diff($fncs, $usedFncs);
         foreach($diffs as $diff) {
-            $this->error('FNC : La fonction ' . $diff . ' n\'est pas utilisé');
+            $this->error('FOR : la boucle FOR ' . $diff . ' n\'est pas utilisé');
         }
         $this->info('-- ctrl du listener --');
         $listenerClassPath = $this->getDestinationPath() . '/listeners/Workflow'.\Str::studly($this->vars['name']).'Listener.php';

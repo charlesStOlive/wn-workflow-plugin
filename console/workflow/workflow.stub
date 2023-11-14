@@ -14,7 +14,6 @@
 {% for field in rulesSet.fields %}
                     {{field.key}}: {{field.value}}              
 {% endfor %}
-                # messages: {{author | lower}}.{{plugin | lower}}::{{name | lower}}_errors
 {% endfor %}
 
 {% endif %}
