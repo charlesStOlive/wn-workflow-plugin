@@ -77,18 +77,6 @@ class Plugin extends PluginBase
 
     }
 
-    /**
-     * Registers any frontend components implemented in this plugin.
-     */
-    public function registerComponents(): array
-    {
-        return []; // Remove this line to activate
-
-        return [
-            'Waka\Workflow\Components\MyComponent' => 'myComponent',
-        ];
-    }
-
     public function registerFormWidgets(): array
     {
         return [
@@ -96,29 +84,16 @@ class Plugin extends PluginBase
         ];
     }
 
-    /**
-     * Registers any backend permissions used by this plugin.
-     */
-    public function registerPermissions(): array
+    public function registerMarkupTags()
     {
-        return []; // Remove this line to activate
-    }
-
-    /**
-     * Registers backend navigation items for this plugin.
-     */
-    public function registerNavigation(): array
-    {
-        return []; // Remove this line to activate
-
         return [
-            'workflow' => [
-                'label'       => 'waka.workflow::lang.plugin.name',
-                'url'         => Backend::url('waka/workflow/mycontroller'),
-                'icon'        => 'icon-leaf',
-                'permissions' => ['waka.workflow.*'],
-                'order'       => 500,
+            'filters' => [
+                'workflow' => function ($twig) {
+                    return $twig->wfPlaceLabel();
+                },
             ],
         ];
     }
+
+
 }
