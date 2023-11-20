@@ -37,12 +37,23 @@ trait WakaWorkflowTrait
 
             $model->bindEvent('model.beforeValidate', function () use ($model) {
                 //trace_log('beforeValidate');
-                //trace_log($model->name);
+                //trace_log($model->toArray());
                 //Recuperation de l'information change_state
                 $changeState = $model->change_state;
                 //trace_log('beforeValidate : ' .$model->change_state);
                 //on verifie s'il y a plusieurs transition possible
                 $wf_try = strpos($changeState, ',');
+                //On récupère les champs en lecture seul. A cause d'une incompatibilité du readOnly avec certain widget, on va s'assurer d'explure les champs caché de la validation. 
+                $fieldsReadOnly = $model->getWfROFields();
+                foreach($fieldsReadOnly as $temprofield) {
+                    $previousValue = $model->getOriginal($temprofield);
+                    if(in_array($temprofield, $model->jsonable)) {
+                        $previousValue = json_decode($previousValue);
+                    }
+                    $model->{$temprofield} = $previousValue;
+                }
+                //trace_log($model->toArray());
+                //
                 if ($wf_try && $changeState) {
                     //trace_log("On test un changement de transition");
                     //Si on test un changement de transition
@@ -50,6 +61,7 @@ trait WakaWorkflowTrait
                     //trace_log($tryToChangeStates);
                     $wfMetadataStore = $model->getWakaWorkflow()->getMetadataStore();
                     $trySuccess = null;
+                    
                     foreach ($tryToChangeStates as $try) {
                         //trace_log("-----try : ".$try." sur état : ".$model->state);
                         //trace_log("Etats possible : ") ;
@@ -71,6 +83,8 @@ trait WakaWorkflowTrait
                             $model->getWakaWorkflow()->apply($model, $model->change_state);
                             return;
                         }
+                        
+                        //trace_log($fieldsReadOnly);
                         foreach ($rules['fields'] as $key => $rule) {
                             if (!$model[$key]) {
                                 //trace_log('error on'.$key);
@@ -97,6 +111,7 @@ trait WakaWorkflowTrait
                     //trace_log($transition);
                     $rulesSet = $model->wakaWorkflowGetTransitionMetadata($transition)['rulesSet'] ?? null;
                     $rules = $model->getWfRules($rulesSet);
+                    //trace_log($rules);
                     if ($rules['fields'] ?? false) {
                         foreach ($rules['fields'] as $key => $rule) {
                             $model->rules[$key] = $rule;
