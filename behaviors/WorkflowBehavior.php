@@ -365,10 +365,13 @@ class WorkflowBehavior extends ControllerBehavior
             foreach ($fieldsReadOnly as $field) {
                 $roField = $form->getField($field);
                 if ($roField) {
-                    $roField->readOnly = true;
                     if ($roField->type == 'widget') {
                         $roField->disabled = true;
+                    } else {
+                        $roField->readOnly = true;
                     }
+                    
+                    
                 }
             }
         }

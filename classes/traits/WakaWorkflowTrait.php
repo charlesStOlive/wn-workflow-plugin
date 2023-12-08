@@ -46,7 +46,8 @@ trait WakaWorkflowTrait
                 //On récupère les champs en lecture seul. A cause d'une incompatibilité du readOnly avec certain widget, on va s'assurer d'explure les champs caché de la validation. 
                 $fieldsReadOnly = $model->getWfROFields();
                 foreach($fieldsReadOnly as $temprofield) {
-                    $previousValue = $model->getOriginal($temprofield);
+                    //trace_log($temprofield);
+                    $previousValue = $model->getOriginal($temprofield) ?? $model->{$temprofield};
                     if(in_array($temprofield, $model->jsonable)) {
                         $previousValue = json_decode($previousValue);
                     }
