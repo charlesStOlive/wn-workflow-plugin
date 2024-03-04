@@ -77,6 +77,36 @@ class Plugin extends PluginBase
 
     }
 
+    public function registerSchedule($schedule)
+    {
+        $cronAutos = \Waka\Workflow\Classes\WorkflowList::getCronAuto();
+
+        // trace_log('cronAutos', $cronAutos);
+
+        foreach ($cronAutos as $time => $cronAuto) {
+            $formattedTime = str_replace('h', ':', $time);
+            // trace_log('formattedTime' . $formattedTime, $cronAuto);
+            $schedule->call(function () use ($cronAuto) {
+                foreach ($cronAuto as $classToExecute) {
+                    $class = $classToExecute['class'] ?? null;
+                    $executions = $classToExecute['execute'] ?? [];
+                    if ($class) {
+                        foreach ($executions as $place => $transition) {
+                            $models = $class::where('state', $place)->get();
+                            foreach ($models as $model) {
+                                if ($model->wakaWorkflowCan($transition)) {
+                                    trace_log($model->name . ' doit passer la transition :  ' . $transition);
+                                    $model->change_state = $transition;
+                                    $model->save();
+                                }
+                            }
+                        }
+                    }
+                }
+            })->dailyAt($formattedTime);
+        }
+    }
+
     public function registerFormWidgets(): array
     {
         return [
