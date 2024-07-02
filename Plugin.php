@@ -103,7 +103,7 @@ class Plugin extends PluginBase
                         }
                     }
                 }
-            })->dailyAt($formattedTime);
+            })->dailyAt($formattedTime)->timezone('Europe/Paris');
         }
     }
 
